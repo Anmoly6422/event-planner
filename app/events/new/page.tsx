@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { createEventAction } from "@/lib/actions/events";
 
 export default function NewEventPage() {
   const form = useForm({
@@ -22,10 +23,9 @@ export default function NewEventPage() {
       eventDate: "",
     },
   });
-
-  function onSubmit(data: any) {
-    console.log(data);
-  }
+async function onSubmit(data: any) {
+  await createEventAction(data);
+}
 
   return (
     <div className="mx-auto w-full max-w-2xl">
@@ -35,8 +35,9 @@ export default function NewEventPage() {
         </CardHeader>
 
         <CardContent>
-          <Form form={form}>
+          <Form form={form} >
             <form
+             
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-5"
             >
