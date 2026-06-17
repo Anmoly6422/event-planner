@@ -5,6 +5,12 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader } from "./ui/card";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
+import { create } from "node:domain";
+import { createInviteLinkAction } from "@/lib/actions/events";
+import { InviteLinkClient } from "@/components/invite-link-client";
+
 
 
 export async function EventDetailContent({
@@ -42,6 +48,14 @@ const event ={
     maybeCount: counts.maybeCount,
     notGoingCount :counts.notGoingCount,
 }
+
+const createInviteActionForEvent= createInviteLinkAction.bind(
+    null,
+    event.id,
+
+)
+
+const inviteUrl =event.inviteToken ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/invite/${event.inviteToken}` :null ;
     return (
     <div className="flex flex-col gap-6">
         <div className="flex flex-wrap  items-start justify-between gap-3">
@@ -69,9 +83,24 @@ const event ={
         </div>
         <Card>
             <CardHeader>Invite Link</CardHeader>
-            <CardContent>
-                <p>Share this link with guests so they can RSVP without creating an account</p>
+            <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                    Share this link with guests so they can RSVP without creating an account.</p>
+                    {inviteUrl ? (
+  <InviteLinkClient inviteUrl={inviteUrl} />
+) : (
+  <p className="text-sm text-muted-foreground">
+    No invite link generated yet.
+  </p>
+)}
+
+               <form action={createInviteActionForEvent}>
+      <Button type="submit">
+      Generate Link
+      </Button>
+     </form>
             </CardContent>
+
         </Card>
 
     </div>)
