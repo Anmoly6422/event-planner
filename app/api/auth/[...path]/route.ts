@@ -7,6 +7,5 @@ const auth = createNeonAuth({
   },
 });
 
-export const runtime = "edge";
 
 export const { GET, POST, PUT, DELETE, PATCH } = auth.handler();
