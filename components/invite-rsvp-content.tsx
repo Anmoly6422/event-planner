@@ -43,7 +43,10 @@ export async function InviteRsvpContent( {token,submitted}:{
     }
 
   
-    const submitRsvpForToken =submitOrUpdateRsvpAction.bind(null,token);
+   const submitRsvpForToken = async (formData: FormData) => {
+  "use server";
+  await submitOrUpdateRsvpAction(token, formData);
+};
     
    return <div className="flex flex-1 flex-col gap-6">
      <Card>

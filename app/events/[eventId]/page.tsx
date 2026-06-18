@@ -6,6 +6,6 @@ export default async function  EventDetailsPage( {params}: {params: Promise<{eve
     const {eventId} = await params ;
     const  session =await getSession();
 
-    return <EventDetailContent userId={session.data?.user?.id!} eventId={eventId}/>
+    return <EventDetailContent userId={session?.data?.user?.id!} eventId={eventId}/>
 
 }

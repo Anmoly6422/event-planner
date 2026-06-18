@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getSession } from "../auth/server";
-import { prisma } from "../prisma";
+import { getSession } from "@/lib/auth/server";
+import { prisma } from "@/lib/prisma";
 import { RsvpStatus } from "@/app/generated/prisma/enums";
 
 type CreateEventInput = {
@@ -35,40 +35,39 @@ function parseRsvp(formData: FormData){
 }
 
 
-export async function createEventAction(data: CreateEventInput) {
-  // 1. Get user session
-  const session = await getSession();
-  const userId = session.data?.user.id;
+export async function createEventAction(formData: FormData) {
+  try {
+    const session = await getSession();
+    const userId = session?.data?.user?.id;
 
-  if (!userId) {
-    throw new Error("Unauthorized");
+    if (!userId) {
+      redirect("/auth/sign-in");
+    }
+
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const location = formData.get("location") as string;
+    const eventDate = formData.get("eventDate") as string;
+
+    const created = await prisma.event.create({
+      data: {
+        ownerUserId: userId,
+        title,
+        description: description || null,
+        location: location || null,
+        eventDate: eventDate ? new Date(eventDate) : null,
+      },
+    });
+
+    redirect(`/events/${created.id}`);
+  } catch (err) {
+    console.error("CREATE EVENT ERROR:", err);
+    throw err;
   }
-
-  // 2. Validate title
-  const title = data.title?.trim();
-
-  if (!title || title.length < 3 || title.length > 120) {
-    throw new Error("Title must be between 3 and 120 characters.");
-  }
-
-  // 3. Create event in DB
-  const created = await prisma.event.create({
-    data: {
-      ownerUserId: userId,
-      title,
-      description: data.description?.trim().slice(0, 2000) || null,
-      location: data.location?.trim().slice(0, 200) || null,
-      eventDate: data.eventDate ? new Date(data.eventDate) : null,
-    },
-  });
-
-  // 4. Redirect to event page
-  redirect(`/events/${created.id}`);
 }
-
 export async function createInviteLinkAction(eventId:string){
    const session =await getSession();
-   const userId =session.data?.user.id;
+   const userId =session?.data?.user.id;
 
    const owns =await prisma.event.findFirst({
       
@@ -89,6 +88,7 @@ export async function createInviteLinkAction(eventId:string){
     create:{ eventId,token},
     update:{token},
    })
+  redirect(`/events/${eventId}`);
 }
 
 export async function submitOrUpdateRsvpAction(token:string,
@@ -134,5 +134,5 @@ export async function submitOrUpdateRsvpAction(token:string,
       respondedAt:new Date(),
     }
    })
-   redirect(`/invite/${token}?submitted`)
+ redirect(`/invite/${token}?submitted=1`) ;
 }

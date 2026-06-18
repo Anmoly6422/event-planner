@@ -4,12 +4,13 @@ import { countByStatus } from "./dashboard-content";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { create } from "node:domain";
 import { createInviteLinkAction } from "@/lib/actions/events";
 import { InviteLinkClient } from "@/components/invite-link-client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 
 
@@ -48,6 +49,26 @@ const event ={
     maybeCount: counts.maybeCount,
     notGoingCount :counts.notGoingCount,
 }
+
+const  rsvpRows =await prisma.eventRsvp.findMany({
+     where:{eventId},
+     orderBy:{respondedAt: "desc"},
+     select:{
+        id:true,
+        name:true,
+        email:true,
+        status:true,
+        respondedAt:true,
+     }
+})
+
+const rsvps =rsvpRows.map( (r)=>({
+    id:r.id,
+    name:r.name,
+    email:r.email,
+    status:r.status,
+    respondedAt :r.respondedAt.toISOString(),
+}))
 
 const createInviteActionForEvent= createInviteLinkAction.bind(
     null,
@@ -101,6 +122,46 @@ const inviteUrl =event.inviteToken ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/i
      </form>
             </CardContent>
 
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    Attendees
+                </CardTitle>
+                <CardContent>
+                    {rsvps.length ===0 ? (   <p className="text-sm text-muted-foreground" >No responses yet.</p>
+
+                    ):(
+                      <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Updated</TableHead>
+                            </TableRow>
+
+                        </TableHeader>
+                       <TableBody>
+  {rsvpRows.map((rsvp) => (
+    <TableRow key={rsvp.id}>
+      <TableCell>{rsvp.name}</TableCell>
+      <TableCell>{rsvp.email}</TableCell>
+      <TableCell>
+        <Badge variant="secondary">
+          {rsvp.status === "not_going" ? "Not Going" : rsvp.status}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        {new Date(rsvp.respondedAt).toLocaleDateString()}
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+                      </Table>
+                    )}
+                </CardContent>
+            </CardHeader>
         </Card>
 
     </div>)
