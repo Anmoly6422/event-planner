@@ -9,5 +9,10 @@ const auth = createNeonAuth({
 
 export const runtime = "edge";
 
-export const GET = auth.handler;
-export const POST = auth.handler;
+export async function GET() {
+  return await auth.handler();
+}
+
+export async function POST() {
+  return await auth.handler();
+}
