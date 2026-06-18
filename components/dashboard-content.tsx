@@ -2,11 +2,11 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import type { RsvpStatus as PrismaRsvpStatus } from "@/app/generated/prisma/enums";
+import type { RsvpStatus } from "@/app/generated/prisma";
 import { Badge } from "./ui/badge";
 
 
- export function countByStatus (rsvps:{status :PrismaRsvpStatus}[]){
+ export function countByStatus (rsvps:{status :RsvpStatus}[]){
     let goingCount =0;
     let maybeCount =0 ;
     let notGoingCount =0;
