@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
-import { RsvpStatus } from "@/app/generated/prisma/enums";
+import type { RsvpStatus } from "@/app/generated/prisma";
 
 type CreateEventInput = {
   title: string;
