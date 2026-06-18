@@ -1,11 +1,10 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function proxy(request: NextRequest) {
-  const { auth } = await import("@/lib/auth/server");
+export default function proxy(request: NextRequest) {
+  // DO NOT handle auth here
+  // Just pass request through safely
 
-  return auth.middleware({
-    loginUrl: "/auth/sign-in",
-  })(request);
+  return NextResponse.next();
 }
 
 export const config = {
